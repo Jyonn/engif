@@ -4,7 +4,7 @@
 """
 from engif.settings import MAX_IMAGE_SIZE, HOST
 
-AVATAR_CALLBACK = '%s/api/image' % HOST
+AVATAR_CALLBACK = '%s/api/image/' % HOST
 
 AVATAR_POLICY = dict(
     insertOnly=1,

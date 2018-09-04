@@ -1,6 +1,7 @@
 from django.utils.crypto import get_random_string
 from django.views import View
 
+from Base.common import deprint
 from Base.error import Error
 from Base.policy import get_avatar_policy
 from Base.qn import QN_PUBLIC_MANAGER
@@ -24,6 +25,7 @@ class ImageView(View):
 
         # if not isinstance(o_user, User):
         #     return error_response(Error.STRANGE)
+        deprint('ImageView-get')
 
         import datetime
         crt_time = datetime.datetime.now().timestamp()
@@ -39,6 +41,7 @@ class ImageView(View):
 
         七牛上传用户头像回调函数
         """
+        deprint('ImageView-post')
         ret = QN_PUBLIC_MANAGER.qiniu_auth_callback(request)
         if ret.error is not Error.OK:
             return error_response(ret)

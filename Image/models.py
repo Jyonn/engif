@@ -60,7 +60,7 @@ class Image(models.Model):
         print('start', start)
 
         image_list = []
-        for o_image in cls.objects.all()[start:count]:
+        for o_image in cls.objects.all()[start:last]:
             image_list.append(o_image.to_dict())
 
         return dict(

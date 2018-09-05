@@ -55,18 +55,18 @@ class Image(models.Model):
             end = last
         if end - count < 0:
             count = end
-        start = end - count + 1
+        start = end - count
 
         print('start', start)
 
         image_list = []
-        for o_image in cls.objects.all()[start:last]:
+        for o_image in cls.objects.all()[start:end]:
             image_list.append(o_image.to_dict())
 
         return dict(
             image_list=image_list,
             count=count,
-            next=start-1,
+            next=start,
         )
 
     def to_dict(self):

@@ -47,17 +47,17 @@ class Image(models.Model):
             count = 10
         last = cls.objects.count()
 
-        print('end', end)
-        print('count', count)
-        print('last', last)
-
+        # print('end', end)
+        # print('count', count)
+        # print('last', last)
+        #
         if end > last or end == -1:
             end = last
         if end - count < 0:
             count = end
         start = end - count
 
-        print('start', start)
+        # print('start', start)
 
         image_list = []
         for o_image in cls.objects.all()[start:end]:
@@ -72,5 +72,5 @@ class Image(models.Model):
     def to_dict(self):
         return dict(
             key=self.key,
-            id=self.pk,
+            # id=self.pk,
         )

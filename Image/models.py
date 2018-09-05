@@ -72,4 +72,5 @@ class Image(models.Model):
     def to_dict(self):
         return dict(
             key=self.key,
+            id=self.pk,
         )

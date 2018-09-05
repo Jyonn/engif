@@ -46,11 +46,18 @@ class Image(models.Model):
         if count > 10 or count <= 0:
             count = 10
         last = cls.objects.count()
+
+        print('end', end)
+        print('count', count)
+        print('last', last)
+
         if end > last or end == -1:
             end = last
         if end - count < 0:
             count = end
         start = end - count + 1
+
+        print('start', start)
 
         image_list = []
         for o_image in cls.objects.all()[start:count]:

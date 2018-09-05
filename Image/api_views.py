@@ -10,13 +10,39 @@ from Base.validator import require_get, require_json, require_post
 from Image.models import Image
 
 
+class ImageHistoryView(View):
+    @staticmethod
+    @require_get([{
+        'value': 'end',
+        'default': True,
+        'default_value': -1,
+        'process': int,
+    }, {
+        'value': 'count',
+        'default': True,
+        'default_value': 10,
+        'process': int,
+    }])
+    def get(request):
+        """ GET /api/image/history
+
+        获取历史图片
+        """
+
+        end = request.d.end
+        count = request.d.count
+        image_list = Image.get_old_images(end, count)
+
+        return response(body=image_list)
+
+
 class ImageView(View):
     @staticmethod
     @require_get()
     # @require_login
     # @require_scope(deny_all_auth_token=True)
     def get(request):
-        """ GET /api/image
+        """ GET /api/image/
 
         获取七牛上传token
         """
@@ -37,7 +63,7 @@ class ImageView(View):
     @require_json
     @require_post(['key'])
     def post(request):
-        """ POST /api/image
+        """ POST /api/image/
 
         七牛上传用户头像回调函数
         """

@@ -43,8 +43,8 @@ class Image(models.Model):
 
     @classmethod
     def get_old_images(cls, end, count=10):
-        if count > 20:
-            count = 20
+        if count > 10 or count <= 0:
+            count = 10
         last = cls.objects.count()
         if end > last or end == -1:
             end = last

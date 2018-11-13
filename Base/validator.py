@@ -14,7 +14,6 @@ from django.http import HttpRequest
 
 from Base.common import deprint
 from Base.error import Error
-from Base.jtoken import JWType
 from Base.param import Param
 from Base.response import Ret, error_response
 
@@ -155,44 +154,6 @@ def field_validator(dict_, cls, allow_none=False):
     return Ret()
 
 
-def require_scope(scope_list=list(), deny_all_auth_token=False, allow_no_login=False):
-    def decorator(func):
-        """decorator"""
-        @wraps(func)
-        def wrapper(request, *args, **kwargs):
-            type_ = getattr(request, 'type_', None)
-            if not type_:
-                if allow_no_login:
-                    return func(request, *args, **kwargs)
-                else:
-                    return error_response(Error.REQUIRE_LOGIN)
-
-            if type_ != JWType.AUTH_TOKEN:
-                return func(request, *args, **kwargs)
-
-            if deny_all_auth_token:
-                return error_response(Error.DENY_ALL_AUTH_TOKEN)
-            o_app = request.user_app.app
-
-            from App.models import App, Scope
-            if not isinstance(o_app, App):
-                deprint('Base-validator-scope_validator-o_app')
-                return error_response(Error.STRANGE)
-
-            if not isinstance(scope_list, list):
-                deprint('Base-validator-scope_validator-scope_list')
-                return error_response(Error.STRANGE)
-            for o_scope in scope_list:
-                if not isinstance(o_scope, Scope):
-                    decorator_generator('Base-validator-scope_validator-o_scope')
-                    return error_response(Error.STRANGE)
-                if o_scope not in o_app.scopes.all():
-                    return error_response(Error.SCOPE_NOT_SATISFIED, append_msg=o_scope.desc)
-            return func(request, *args, **kwargs)
-        return wrapper
-    return decorator
-
-
 def require_method(method, r_params=None, decode=True):
     """generate decorator, validate func with proper method and params"""
     def decorator(func):
@@ -263,104 +224,3 @@ def require_json(func):
             return func(request, *args, **kwargs)
         return error_response(Error.REQUIRE_JSON)
     return wrapper
-
-
-def decorator_generator(verify_func):
-    """装饰器生成器"""
-    def decorator(func):
-        """decorator"""
-        def wrapper(request, *args, **kwargs):
-            """wrapper, using verify_func to verify"""
-            ret = verify_func(request)
-            if ret.error is not Error.OK:
-                return error_response(ret)
-            return func(request, *args, **kwargs)
-        return wrapper
-    return decorator
-
-
-def require_login_func(request):
-    """需要登录
-
-    并根据传入的token获取user
-    """
-    jwt_str = request.META.get('HTTP_TOKEN')
-    if jwt_str is None:
-        return Ret(Error.REQUIRE_LOGIN)
-    from Base.jtoken import jwt_d
-
-    ret = jwt_d(jwt_str)
-    if ret.error is not Error.OK:
-        return ret
-    dict_ = ret.body
-
-    type_ = dict_.get('type')
-    if not type_:
-        deprint('Base-validator-require_login_func-dict.get(type)')
-        return Ret(Error.STRANGE)
-
-    if type_ == JWType.LOGIN_TOKEN:
-        user_id = dict_.get("user_id")
-        if not user_id:
-            deprint('Base-validator-require_login_func-dict.get(user_id)')
-            return Ret(Error.STRANGE)
-
-        from User.models import User
-        ret = User.get_user_by_id(user_id)
-        if ret.error is not Error.OK:
-            return ret
-        o_user = ret.body
-        if not isinstance(o_user, User):
-            return Ret(Error.STRANGE)
-    elif type_ == JWType.AUTH_TOKEN:
-        user_app_id = dict_.get('user_app_id')
-        if not user_app_id:
-            deprint('Base-validator-require_login_func-dict.get(user_app_id)')
-            return Ret(Error.STRANGE)
-
-        from App.models import UserApp
-        ret = UserApp.get_user_app_by_user_app_id(user_app_id, check_bind=True)
-        if ret.error is not Error.OK:
-            return ret
-        o_user_app = ret.body
-        if not isinstance(o_user_app, UserApp):
-            return Ret(Error.STRANGE)
-
-        ctime = dict_['ctime']
-        if float(o_user_app.app.field_change_time) > ctime:
-            return Ret(Error.APP_FIELD_CHANGE)
-
-        o_user = o_user_app.user
-        request.user_app = o_user_app
-    else:
-        return Ret(Error.ERROR_TOKEN_TYPE)
-
-    request.user = o_user
-    request.type_ = type_
-
-    return Ret()
-
-
-def maybe_login_func(request):
-    """decorator, maybe require login"""
-    require_login_func(request)
-    return Ret()
-
-
-def require_root_func(request):
-    """decorator, require root login"""
-    ret = require_login_func(request)
-    if ret.error is not Error.OK:
-        return ret
-    o_user = request.user
-    from User.models import User
-    if not isinstance(o_user, User):
-        return Ret(Error.STRANGE)
-    if o_user.pk != User.ROOT_ID:
-        return Ret(Error.REQUIRE_ROOT)
-    return Ret()
-
-
-require_login = decorator_generator(require_login_func)
-maybe_login = decorator_generator(maybe_login_func)
-require_root = decorator_generator(require_root_func)

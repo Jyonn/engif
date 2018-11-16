@@ -18,11 +18,11 @@ for k in MLC_KEYS:
     MLC_IMG_LIST.append(dict(key=TEMPLATE % k))
 MLC_IMG_COUNT = len(MLC_KEYS)
 
-MLC_IMG_DICT = dict(
-    image_list=MLC_IMG_LIST,
-    count=MLC_IMG_COUNT,
-    next=0,
-)
+# MLC_IMG_DICT = dict(
+#     image_list=MLC_IMG_LIST,
+#     count=MLC_IMG_COUNT,
+#     next=0,
+# )
 
 
 class ImageHistoryView(View):
@@ -44,11 +44,14 @@ class ImageHistoryView(View):
         获取历史图片
         """
 
-        # end = request.d.end
-        # count = request.d.count
-        # image_list = Image.get_old_images(end, count)
+        end = request.d.end
+        count = request.d.count
+        image_list = Image.get_old_images(end, count)
 
-        return response(body=MLC_IMG_DICT)
+        if end == -1:
+            image_list['image_list'] += MLC_IMG_LIST
+            image_list['count'] += MLC_IMG_COUNT
+        return response(body=image_list)
 
 
 class ImageView(View):

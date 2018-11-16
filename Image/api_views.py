@@ -11,6 +11,7 @@ from Image.models import Image
 
 
 MLC_KEYS = ['mao', 'lu', 'chan', '11', '18', 'sheng', 'ri', 'kuai', 'le']
+MLC_KEYS.reverse()
 TEMPLATE = 'engif/mlc/%s.png'
 MLC_IMG_LIST = []
 for k in MLC_KEYS:

@@ -14,8 +14,14 @@ MLC_KEYS = ['mao', 'lu', 'chan', '11', '18', 'sheng', 'ri', 'kuai', 'le']
 TEMPLATE = 'engif/mlc/%s.png'
 MLC_IMG_LIST = []
 for k in MLC_KEYS:
-    MLC_IMG_LIST.append(TEMPLATE % k)
+    MLC_IMG_LIST.append(dict(key=TEMPLATE % k))
 MLC_IMG_COUNT = len(MLC_KEYS)
+
+MLC_IMG_DICT = dict(
+    image_list=MLC_IMG_LIST,
+    count=MLC_IMG_COUNT,
+    next=0,
+)
 
 
 class ImageHistoryView(View):
@@ -40,13 +46,8 @@ class ImageHistoryView(View):
         # end = request.d.end
         # count = request.d.count
         # image_list = Image.get_old_images(end, count)
-        image_dict = dict(
-            image_list=MLC_IMG_LIST,
-            count=MLC_IMG_COUNT,
-            next=0,
-        )
 
-        return response(body=image_dict)
+        return response(body=MLC_IMG_DICT)
 
 
 class ImageView(View):

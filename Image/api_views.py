@@ -10,6 +10,14 @@ from Base.validator import require_get, require_json, require_post
 from Image.models import Image
 
 
+MLC_KEYS = ['mao', 'lu', 'chan', '11', '18', 'sheng', 'ri', 'kuai', 'le']
+TEMPLATE = 'engif/mlc/%s.png'
+MLC_IMG_LIST = []
+for k in MLC_KEYS:
+    MLC_IMG_LIST.append(TEMPLATE % k)
+MLC_IMG_COUNT = len(MLC_KEYS)
+
+
 class ImageHistoryView(View):
     @staticmethod
     @require_get([{
@@ -29,11 +37,16 @@ class ImageHistoryView(View):
         获取历史图片
         """
 
-        end = request.d.end
-        count = request.d.count
-        image_list = Image.get_old_images(end, count)
+        # end = request.d.end
+        # count = request.d.count
+        # image_list = Image.get_old_images(end, count)
+        image_dict = dict(
+            image_list=MLC_IMG_LIST,
+            count=MLC_IMG_COUNT,
+            next=0,
+        )
 
-        return response(body=image_list)
+        return response(body=image_dict)
 
 
 class ImageView(View):

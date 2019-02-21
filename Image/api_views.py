@@ -10,19 +10,19 @@ from Base.validator import require_get, require_json, require_post
 from Image.models import Image
 
 
-# MLC_KEYS = ['mao', 'lu', 'chan', '11', '18', 'sheng', 'ri', 'kuai', 'le']
-# MLC_KEYS.reverse()
-# TEMPLATE = 'engif/mlc/%s.png'
-# MLC_IMG_LIST = []
-# for k in MLC_KEYS:
-#     MLC_IMG_LIST.append(dict(key=TEMPLATE % k))
-# MLC_IMG_COUNT = len(MLC_KEYS)
+MLC_KEYS = ['sheng', 'ming', 'lastword']
+MLC_KEYS.reverse()
+TEMPLATE = 'engif/attention/%s.png'
+MLC_IMG_LIST = []
+for k in MLC_KEYS:
+    MLC_IMG_LIST.append(dict(key=TEMPLATE % k))
+MLC_IMG_COUNT = len(MLC_KEYS)
 
-# MLC_IMG_DICT = dict(
-#     image_list=MLC_IMG_LIST,
-#     count=MLC_IMG_COUNT,
-#     next=0,
-# )
+MLC_IMG_DICT = dict(
+    image_list=MLC_IMG_LIST,
+    count=MLC_IMG_COUNT,
+    next=0,
+)
 
 
 class ImageHistoryView(View):
@@ -48,9 +48,9 @@ class ImageHistoryView(View):
         count = request.d.count
         image_list = Image.get_old_images(end, count)
 
-        # if end == -1:
-        #     image_list['image_list'] += MLC_IMG_LIST
-        #     image_list['count'] += MLC_IMG_COUNT
+        if end == -1:
+            image_list['image_list'] += MLC_IMG_LIST
+            image_list['count'] += MLC_IMG_COUNT
         return response(body=image_list)
 
 

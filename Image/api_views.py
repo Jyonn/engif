@@ -56,7 +56,12 @@ class ImageHistoryView(View):
 
 class ImageView(View):
     @staticmethod
-    @require_get()
+    @require_get([{
+        'value': 'num',
+        'default': True,
+        'default_value': 1,
+        'process': int,
+    }])
     # @require_login
     # @require_scope(deny_all_auth_token=True)
     def get(request):
@@ -69,13 +74,21 @@ class ImageView(View):
 
         # if not isinstance(o_user, User):
         #     return error_response(Error.STRANGE)
-        deprint('ImageView-get')
+        num = request.d.num
+        if num < 1:
+            num = 1
+        if num > 9:
+            num = 9
 
         import datetime
-        crt_time = datetime.datetime.now().timestamp()
-        key = '%s_%s' % (crt_time, get_random_string(length=4))
-        qn_token, key = QN_PUBLIC_MANAGER.get_upload_token(key, get_avatar_policy())
-        return response(body=dict(upload_token=qn_token, key=key))
+        token_list = []
+
+        for _ in range(num):
+            crt_time = datetime.datetime.now().timestamp()
+            key = '%s_%s' % (crt_time, get_random_string(length=4))
+            qn_token, key = QN_PUBLIC_MANAGER.get_upload_token(key, get_avatar_policy())
+            token_list.append(dict(upload_token=qn_token, key=key))
+        return response(body=token_list)
 
     @staticmethod
     @require_json
